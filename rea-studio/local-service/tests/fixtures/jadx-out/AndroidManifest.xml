@@ -1,0 +1,1 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.example"><uses-permission android:name="android.permission.READ_CONTACTS"/><uses-permission android:name="android.permission.INTERNET"/><application><activity android:name=".MainActivity"/><service android:name=".SyncService"/></application></manifest>

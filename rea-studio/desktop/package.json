@@ -1,0 +1,57 @@
+{
+  "name": "rea-studio-desktop",
+  "version": "1.0.0",
+  "description": "REA Studio local reverse-engineering workbench",
+  "main": "main.cjs",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "dist:win": "node prepare.cjs && electron-builder --win nsis",
+    "prepare:app": "node prepare.cjs",
+    "test:bridge": "python -m unittest discover ../local-service/tests -v"
+  },
+  "devDependencies": {
+    "electron": "36.9.5",
+    "electron-builder": "26.0.12"
+  },
+  "build": {
+    "appId": "org.reastudio.workbench",
+    "productName": "REA Studio",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.cjs",
+      "preload.cjs",
+      "renderer/**/*",
+      "local-service/**/*"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
+    },
+    "extraResources": [
+      {
+        "from": "local-service",
+        "to": "local-service",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "asar": true,
+    "artifactName": "REA-Studio-${version}-Windows-${arch}.${ext}"
+  }
+}

@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0a0d14">
+<title>REA Studio — Reverse Engineering Workbench</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand"><div class="brand-mark">R</div><div><strong>REA <span>STUDIO</span></strong><small>REVERSE ENGINEERING WORKBENCH</small></div></div>
+    <div class="workspace-label">WORKSPACE</div>
+    <button class="nav active" data-view="overview"><span>◈</span> Overview</button>
+    <button class="nav" data-view="binary"><span>⌘</span> Binary inspector</button>
+    <button class="nav" data-view="strings"><span>≋</span> Strings & indicators</button>
+    <button class="nav" data-view="hex"><span>▦</span> Hex viewer</button>
+    <button class="nav" data-view="reports"><span>▤</span> Reports</button>
+    <button class="nav" data-view="android"><span>▣</span> Android / APK</button>
+    <button class="nav" data-view="jobs"><span>▶</span> Analysis jobs</button>
+    <button class="nav" data-view="engine"><span>⌁</span> Engine & providers</button>
+    <div class="sidebar-bottom"><div class="status-dot"></div><div><b>LOCAL WORKSPACE</b><small>Files stay in this browser session</small></div></div>
+  </aside>
+  <main class="main">
+    <header class="topbar"><div class="crumb">Workspace <span>/</span> <b id="current-crumb">Overview</b></div><div class="top-actions"><span class="pill"><i></i> Local-first · no uploads</span><button class="btn btn-quiet" id="clear-btn">Clear session</button><button class="btn btn-primary" id="choose-btn">＋ Open file</button><input type="file" id="file-input" hidden></div></header>
+    <section class="content">
+      <div class="hero"><div><div class="eyebrow">REVERSE ENGINEERING / WORKSPACE</div><h1>Understand software.<br><em>Follow the evidence.</em></h1><p>Inspect artifacts, extract indicators, and build a reproducible analysis report — all from one focused workspace.</p></div><div class="hero-art"><div class="orb"></div><div class="orbit orbit-a"></div><div class="orbit orbit-b"></div><div class="crosshair">＋</div></div></div>
+      <div class="dropzone" id="dropzone"><div class="upload-icon">↑</div><div><b>Drop a file to begin analysis</b><p>EXE · DLL · ELF · Mach-O · APK · JAR · WASM · JS · ZIP · firmware · any binary</p></div><button class="btn btn-outline" id="browse-btn">Browse files</button></div>
+      <div class="stats-grid">
+        <article class="stat-card"><div class="stat-label">ACTIVE ARTIFACT</div><div class="stat-value" id="stat-file">No file loaded</div><div class="stat-foot" id="stat-file-foot">Choose an artifact to inspect</div></article>
+        <article class="stat-card"><div class="stat-label">FILE SIZE</div><div class="stat-value" id="stat-size">—</div><div class="stat-foot">Raw input size</div></article>
+        <article class="stat-card"><div class="stat-label">EXTRACTED STRINGS</div><div class="stat-value" id="stat-strings">—</div><div class="stat-foot">Printable ASCII and UTF-16LE</div></article>
+        <article class="stat-card"><div class="stat-label">SHA-256</div><div class="stat-value hash-value" id="stat-hash">—</div><div class="stat-foot">Integrity fingerprint</div></article>
+      </div>
+      <div class="section-heading"><div><div class="eyebrow">ANALYSIS MODULES</div><h2>Workbench</h2></div><span class="muted">Choose a module to inspect the loaded artifact</span></div>
+      <div class="module-grid">
+        <button class="module-card" data-view="binary"><div class="module-icon purple">⌘</div><div><b>Binary inspector</b><p>File signatures, architecture hints, format detection and metadata.</p><span>OPEN INSPECTOR ↗</span></div></button>
+        <button class="module-card" data-view="strings"><div class="module-icon teal">≋</div><div><b>Strings & indicators</b><p>Search printable strings, URLs, paths, domains and suspicious keywords.</p><span>EXPLORE STRINGS ↗</span></div></button>
+        <button class="module-card" data-view="hex"><div class="module-icon orange">▦</div><div><b>Hex viewer</b><p>Browse byte offsets, hexadecimal values and ASCII side by side.</p><span>VIEW BYTES ↗</span></div></button>
+        <button class="module-card" data-view="reports"><div class="module-icon blue">▤</div><div><b>Evidence report</b><p>Export a portable JSON report of findings and file fingerprints.</p><span>BUILD REPORT ↗</span></div></button>
+        <button class="module-card" data-view="android"><div class="module-icon teal">▣</div><div><b>Android / APK explorer</b><p>Inventory APK ZIP contents, DEX files, native libraries and manifest evidence.</p><span>INSPECT PACKAGE ↗</span></div></button>
+        <button class="module-card" data-view="jobs"><div class="module-icon orange">▶</div><div><b>Analysis jobs</b><p>Run cancellable, evidence-producing local triage tasks with visible progress.</p><span>OPEN JOB QUEUE ↗</span></div></button>
+        <button class="module-card" data-view="engine"><div class="module-icon blue">⌁</div><div><b>Engine & providers</b><p>Connect the local REA engine, review provider prerequisites, and prepare real analysis jobs.</p><span>CONFIGURE ENGINE ↗</span></div></button>
+      </div>
+      <div class="view-panel hidden" id="view-panel">
+        <div class="panel-head"><div><div class="eyebrow" id="panel-eyebrow">MODULE</div><h2 id="panel-title">Binary inspector</h2></div><button class="btn btn-quiet" id="close-panel">Close ×</button></div>
+        <div id="panel-content"></div>
+      </div>
+      <footer><span>REA STUDIO · LOCAL-FIRST ARTIFACT TRIAGE</span><span>Static inspection only · No file uploads · Treat unknown files as untrusted</span></footer>
+    </section>
+  </main>
+</div>
+<div class="toast" id="toast"></div>
+<script src="app.js"></script>
+</body></html>

@@ -1,0 +1,68 @@
+name: Windows installer and provider tests
+on:
+  push:
+    paths: ['rea-studio/**', '.github/workflows/windows-installer.yml']
+  pull_request:
+    paths: ['rea-studio/**', '.github/workflows/windows-installer.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  tests:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.14.0'}
+      - name: Provider output contract tests
+        run: python -m unittest discover -s rea-studio/local-service/tests -v
+      - name: Syntax checks
+        run: |
+          python -m py_compile rea-studio/local-service/server.py rea-studio/local-service/android_analysis.py rea-studio/local-service/ida_export.py
+          node --check rea-studio/app.js
+  windows-installer:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12.8'}
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.14.0'}
+      - name: Generate lockfile if bootstrapping a fresh checkout
+        working-directory: rea-studio/desktop
+        shell: pwsh
+        run: |
+          if (-not (Test-Path package-lock.json)) { npm install --package-lock-only --ignore-scripts --no-audit --no-fund }
+      - name: Install locked npm dependencies
+        working-directory: rea-studio/desktop
+        run: npm ci
+      - name: Build self-contained Python bridge
+        working-directory: rea-studio/desktop
+        run: .\build-bridge-windows.bat
+      - name: Test provider output fixtures
+        run: python -m unittest discover -s rea-studio/local-service/tests -v
+      - name: Build NSIS installer
+        working-directory: rea-studio/desktop
+        run: npm run dist:win
+      - name: Generate SHA-256 and build manifest
+        shell: pwsh
+        working-directory: rea-studio/desktop
+        run: |
+          $installer = Get-ChildItem dist -Filter *.exe | Select-Object -First 1
+          if (-not $installer) { throw 'NSIS installer not produced' }
+          $hash = (Get-FileHash $installer.FullName -Algorithm SHA256).Hash.ToLower()
+          $lockHash = (Get-FileHash package-lock.json -Algorithm SHA256).Hash.ToLower()
+          @{ product='REA Studio'; version=(Get-Content package.json | ConvertFrom-Json).version; runner='windows-2022'; node=(node --version); python=(python --version); installer=$installer.Name; sha256=$hash; packageLockSha256=$lockHash; electron=(npm ls electron --depth=0 --json | ConvertFrom-Json).dependencies.electron.version; electronBuilder=(npm ls electron-builder --depth=0 --json | ConvertFrom-Json).dependencies.'electron-builder'.version } | ConvertTo-Json -Depth 5 | Set-Content dist/build-manifest.json
+          "${hash}  $($installer.Name)" | Set-Content dist/SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rea-studio-windows-installer-${{ github.sha }}
+          path: |
+            rea-studio/desktop/dist/*.exe
+            rea-studio/desktop/dist/build-manifest.json
+            rea-studio/desktop/dist/SHA256SUMS.txt
+            rea-studio/desktop/package-lock.json
+          if-no-files-found: error
